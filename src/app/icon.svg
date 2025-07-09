@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4 (e7c3feb1, 2024-10-09)"
+   sodipodi:docname="eye.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="0.29379303"
+     inkscape:cx="379.51887"
+     inkscape:cy="645.01189"
+     inkscape:window-width="1104"
+     inkscape:window-height="456"
+     inkscape:window-x="138"
+     inkscape:window-y="212"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg1" />
+  <defs
+     id="defs1" />
+  <g
+     id="g6">
+    <g
+       inkscape:label="Outer Eye"
+       inkscape:groupmode="layer"
+       id="layer1">
+      <path
+         id="path1"
+         style="fill:#ffffff;stroke:#000000;stroke-width:4;stroke-linejoin:bevel;stroke-miterlimit:4.8;stroke-dasharray:none"
+         d="m 196.32584,169.30853 c -1e-5,12.93175 -65.37732,24.31558 -88.25657,24.31558 -22.879248,0 -82.853109,-10.48325 -82.85311,-23.415 -10e-7,-11.1306 60.874432,-26.11674 83.75369,-26.11674 22.87925,0 87.35599,12.28441 87.35599,25.21616 z"
+         sodipodi:nodetypes="sssss" />
+    </g>
+    <ellipse
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:3;stroke-linejoin:bevel;stroke-miterlimit:4.8;stroke-opacity:1;stroke-dasharray:none"
+       id="path6"
+       cx="109.42014"
+       cy="168.85825"
+       rx="25.666452"
+       ry="24.765875" />
+    <g
+       inkscape:groupmode="layer"
+       id="layer2"
+       inkscape:label="Inner Eye" />
+  </g>
+</svg>

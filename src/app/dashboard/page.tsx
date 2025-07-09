@@ -6,7 +6,6 @@ export const metadata: Metadata = {
   description: "This is the dashboard page for the ROTAS Map",
 };
 
-
 export default function Page() {
   return <p>Dashboard Page</p>;
 }
