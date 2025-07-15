@@ -2,7 +2,6 @@
 import LoginForm from '@/components/LoginForm';
 import { Suspense } from 'react';
 import { Metadata } from "next";
-// Don't show root layout with side bar when not logged in
 
 export const metadata: Metadata = {
   title: "Login Page",

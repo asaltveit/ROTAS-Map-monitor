@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Monitor Home",
-  description: "Home page of ROTAS Map Monitoring",
+  description: "Publicly accessible home page of ROTAS Map Monitoring",
 };
 
 export default function RootLayout({

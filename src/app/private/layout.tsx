@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import SideNav from '@/components/ui/dashboard/SideNav';
+import SideNav from '@/components/ui/SideNav';
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
-    // TODO: Guard access here
+    // Guard private access here
     const supabase = await createClient()
     const { data, error } = await supabase.auth.getUser()
     if (error || !data?.user) {

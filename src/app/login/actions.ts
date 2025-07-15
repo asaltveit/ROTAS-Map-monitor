@@ -17,8 +17,8 @@ export async function login(formData: FormData) {
     if (error) {
         redirect('/error')
     }
-    revalidatePath('/', 'layout')
-    redirect('/')
+    revalidatePath('/private/admin', 'layout')
+    redirect('/private/admin')
 }
 
 // Should sign up be allowed?
