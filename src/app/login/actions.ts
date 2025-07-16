@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 // TODO: add validation
+// TODO: add logging of errors?
 
 export async function login(formData: FormData) {
     const supabase = await createClient()
@@ -21,7 +22,17 @@ export async function login(formData: FormData) {
     redirect('/private/admin')
 }
 
-// Should sign up be allowed?
+export async function signOut() {
+  const supabase = await createClient()
+  const { error } = await supabase.auth.signOut()
+  if (error) {
+    redirect('/error')
+  }
+  revalidatePath('/login', 'layout')
+  redirect('/login')
+}
+
+// Should sign up be allowed? set password through link?
 /*export async function signup(formData: FormData) {
   const supabase = await createClient()
   // type-casting here for convenience
