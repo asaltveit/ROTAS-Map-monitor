@@ -51,19 +51,36 @@ export async function signup(formData: FormData) {
 }
 
 // TODO: below
-export async function resetPassword() {
+export async function emailForPassword(formData: FormData) {
   console.log('TODO: reset password')
-  /*const supabase = await createClient()
-  const { error } = await supabase.auth.signOut()
+  const email = formData.get('email') as string;
+  const supabase = await createClient()
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: 'localhost:3000/reset-password/set_password',
+  })
+
   if (error) {
-    redirect('/error')
+    redirect('/error') // should errors be shown with snackbar?
+  }
+}
+
+export async function resetPassword(formData: FormData) {
+  console.log('TODO: reset password')
+  const new_password = formData.get('password') as string;
+  const supabase = await createClient()
+  const { data, error } = await supabase.auth.updateUser({
+    password: new_password
+  })
+  if (error) {
+    redirect('/error') // should errors be shown with snackbar?
   }
   revalidatePath('/login', 'layout')
-  redirect('/login')*/
+  redirect('/login')
+
 }
 
 // TODO: below
-export async function removeUser() {
+export async function removeUser(formData: FormData) {
   console.log('TODO: remove user')
   /*const supabase = await createClient()
   const { error } = await supabase.auth.signOut()

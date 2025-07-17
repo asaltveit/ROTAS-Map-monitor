@@ -1,12 +1,12 @@
 // Based on https://blog.stackademic.com/create-a-login-form-with-react-hook-form-package-ab1634a206c9
 'use client'
 
-import { resetPassword } from '@/app/login/actions';
+import { emailForPassword } from '@/app/login/actions';
 import Form from './Form';
 
 // TODO: put these directly into the page?
 
-const ResetPasswordForm = () => {
+const EmailForPasswordForm = () => {
     /*
         - didn't put in test account
         isCapitalLetter: (value) =>
@@ -22,9 +22,9 @@ const ResetPasswordForm = () => {
 
     return (
         <div>
-            <Form action={resetPassword} submitText='Reset password'></Form>
+            <Form action={emailForPassword} submitText='Send email to reset password' includeEmail ></Form>
         </div>
     );
 };
 
-export default ResetPasswordForm;
+export default EmailForPasswordForm;

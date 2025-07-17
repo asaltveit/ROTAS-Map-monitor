@@ -1,32 +1,25 @@
-
-import LoginForm from '@/components/LoginForm';
-import { Suspense } from 'react'; // why the suspense?
+import { Suspense } from 'react';
 import { Metadata } from "next";
-import Link from 'next/link';
-
+import { resetPassword } from '@/app/login/actions';
+import Form from '@/components/ui/admin/Form';
+// TODO: add a reset pword page separate from sending email to reset pword
 export const metadata: Metadata = {
-  title: "Login Page",
-  description: "This is the ROTAS Map Monitor login page",
+  title: "Reset Password Page",
+  description: "This is the reset password page",
 };
 
-export default function LoginPage() {
+export default function Page() {
   return (
     <div className="flex items-center justify-center md:h-screen">
       <div className="relative mx-auto flex w-full max-w-[400px] flex-col space-y-2.5 p-4 md:-mt-32">
         <div className="flex h-20 w-full items-end rounded-lg bg-blue-500 p-3 md:h-36">
           <div className="w-32 text-white md:w-36">
-            Logo
+            Set new password
           </div>
         </div>
         <Suspense>
-          <LoginForm />
+          <Form action={resetPassword} submitText="Set new password" includePassword />
         </Suspense>
-        <Link
-          className="mb-2 flex items-end justify-start rounded-md bg-blue-600 p-3"
-          href="/reset-password/send_email"
-        >
-          Reset password
-        </Link>
       </div>
     </div>
   );

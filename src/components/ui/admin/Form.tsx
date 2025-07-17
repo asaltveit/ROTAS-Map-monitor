@@ -3,10 +3,12 @@
 
 type FormProps = {
     action: (formData: FormData) => void,
-    submitText: string
+    submitText: string,
+    includeEmail?: boolean,
+    includePassword?: boolean
 }
 
-const Form = ({ action, submitText }: FormProps) => {
+const Form = ({ action, submitText, includeEmail=false, includePassword=false }: FormProps) => {
     /*
         Needs:
         - Styling
@@ -15,47 +17,50 @@ const Form = ({ action, submitText }: FormProps) => {
         - Check that email exists before checking password? For reset?
         - Remove user as well?
     */
-
+    // will the ifs cause formData issues?
     return (
         <div>
             <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
                 <form className="space-y-6">
-                    <div>
-                        <label
-                            htmlFor="email"
-                            className="block text-sm font-medium leading-6 text-gray-900"
-                        >
-                            Email address
-                        </label>
-                        <div className="mt-2">
-                            <input
-                                id="email"
-                                name="email"
-                                autoComplete="email"
-                                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                            />
-                        </div>
-                    </div>
-
-                    <div>
-                        <div className="flex items-center justify-between">
+                    { includeEmail && 
+                        <div>
                             <label
-                                htmlFor="password"
+                                htmlFor="email"
                                 className="block text-sm font-medium leading-6 text-gray-900"
                             >
-                                Password
+                                Email address
                             </label>
+                            <div className="mt-2">
+                                <input
+                                    id="email"
+                                    name="email"
+                                    autoComplete="email"
+                                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                />
+                            </div>
                         </div>
-                        <div className="mt-2">
-                            <input
-                                id="password"
-                                type="password"
-                                name="password"
-                                autoComplete="current-password"
-                                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                            />
+                    }
+                    { includePassword &&
+                        <div>
+                            <div className="flex items-center justify-between">
+                                <label
+                                    htmlFor="password"
+                                    className="block text-sm font-medium leading-6 text-gray-900"
+                                >
+                                    Password
+                                </label>
+                            </div>
+                            <div className="mt-2">
+                                <input
+                                    id="password"
+                                    type="password"
+                                    name="password"
+                                    autoComplete="current-password"
+                                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                />
+                            </div>
                         </div>
-                    </div>
+                    }
                     <div>
                         <button
                             type="submit"
