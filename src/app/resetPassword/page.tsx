@@ -1,12 +1,11 @@
 
-import LoginForm from '@/components/LoginForm';
+import ResetPasswordForm from '@/components/ui/admin/ResetPasswordForm';
 import { Suspense } from 'react'; // why the suspense?
 import { Metadata } from "next";
-import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: "Login Page",
-  description: "This is the ROTAS Map Monitor login page",
+  title: "Reset Password Page",
+  description: "This is the ROTAS Map Monitor reset password page",
 };
 
 export default function LoginPage() {
@@ -15,18 +14,12 @@ export default function LoginPage() {
       <div className="relative mx-auto flex w-full max-w-[400px] flex-col space-y-2.5 p-4 md:-mt-32">
         <div className="flex h-20 w-full items-end rounded-lg bg-blue-500 p-3 md:h-36">
           <div className="w-32 text-white md:w-36">
-            Logo
+            Reset password
           </div>
         </div>
         <Suspense>
-          <LoginForm />
+          <ResetPasswordForm />
         </Suspense>
-        <Link
-          className="mb-2 flex h-20 items-end justify-start rounded-md bg-blue-600 p-4 md:h-40"
-          href="/private/admin/reset-password"
-        >
-          Reset password
-        </Link>
       </div>
     </main>
   );

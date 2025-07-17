@@ -1,18 +1,7 @@
 import Link from 'next/link';
 import NavLinks from './NavLinks';
-//import AcmeLogo from '@/app/ui/acme-logo';
 //import { PowerIcon } from '@heroicons/react/24/outline';
 import { signOut } from '@/app/login/actions';
-
-/*
-    <form
-        action={async () => {
-            'use server';
-            await signOut({ redirectTo: '/' });
-        }}
-    >
-    </form>
-*/
 
 export default function SideNav() {
   return (

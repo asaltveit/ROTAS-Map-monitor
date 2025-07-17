@@ -1,3 +1,4 @@
+import Nav from "@/components/ui/admin/Nav";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -6,13 +7,21 @@ export const metadata: Metadata = {
   description: "This is the admin page for the ROTAS Map",
 };
 
+// TODO: add styling
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
+      <div>
+        <Nav />
+      </div>
       {children}
     </div>
   );
 }
+
+// TODO: Add side nav for admin pages? - sign-up, reset pword, what else?
+
 /*"use client";
 
 import { useSidebar } from "@/context/SidebarContext";

@@ -33,7 +33,7 @@ export async function signOut() {
 }
 
 // Should sign up be allowed? set password through link?
-/*export async function signup(formData: FormData) {
+export async function signup(formData: FormData) {
   const supabase = await createClient()
   // type-casting here for convenience
   // in practice, you should validate your inputs
@@ -43,8 +43,33 @@ export async function signOut() {
   }
   const { error } = await supabase.auth.signUp(data)
   if (error) {
+    redirect('/error') // should errors be shown with snackbar?
+  }
+  // Is the below needed?
+  revalidatePath('/private/admin', 'layout')
+  redirect('/private/admin')
+}
+
+// TODO: below
+export async function resetPassword() {
+  console.log('TODO: reset password')
+  /*const supabase = await createClient()
+  const { error } = await supabase.auth.signOut()
+  if (error) {
     redirect('/error')
   }
-  revalidatePath('/', 'layout')
-  redirect('/')
-}*/
+  revalidatePath('/login', 'layout')
+  redirect('/login')*/
+}
+
+// TODO: below
+export async function removeUser() {
+  console.log('TODO: remove user')
+  /*const supabase = await createClient()
+  const { error } = await supabase.auth.signOut()
+  if (error) {
+    redirect('/error')
+  }
+  revalidatePath('/login', 'layout')
+  redirect('/login')*/
+}
