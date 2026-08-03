@@ -1,20 +1,20 @@
-import Link from 'next/link';
+import Link from 'next/link'
 
 export default function Nav() {
   return (
-    <div className="flex h-full flex-col px-3 py-4 md:px-2">
+    <div className="mb-6 flex flex-col gap-2">
       <Link
-        className="mb-2 flex items-end justify-start rounded-md bg-blue-600 p-3"
-        href="/private/admin/signup"
+        className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
+        href="/private/admin/add-user"
       >
         Add user
       </Link>
       <Link
-        className="mb-2 flex items-end justify-start rounded-md bg-blue-600 p-3"
+        className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
         href="/private/admin/remove-user"
       >
         Remove user
       </Link>
     </div>
-  );
+  )
 }
