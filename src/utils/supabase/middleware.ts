@@ -1,7 +1,14 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { getSupabaseAnonKey, getSupabaseUrl } from './env'
 
-const publicPrefixes = ['/login', '/auth', '/reset-password', '/unauthorized']
+const publicPrefixes = [
+  '/login',
+  '/auth',
+  '/reset-password',
+  '/unauthorized',
+  '/api/monitor/run',
+]
 
 function isPublicPath(pathname: string): boolean {
   return publicPrefixes.some((prefix) => pathname.startsWith(prefix))
@@ -13,8 +20,8 @@ export async function updateSession(request: NextRequest) {
   })
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    getSupabaseUrl(),
+    getSupabaseAnonKey(),
     {
       cookies: {
         getAll() {

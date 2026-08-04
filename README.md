@@ -21,7 +21,7 @@ cp .env.example .env.local
 2. Fill in Supabase credentials (same project as ROTAS Map):
 
 - `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
 
 3. Run SQL migrations in the Supabase SQL editor:
@@ -50,7 +50,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | Variable | Description |
 |---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Service role key (server only) |
 | `NEXT_PUBLIC_APP_URL` | This app's public URL |
 | `ROTAS_MAP_URL` | ROTAS Map URL to monitor |
