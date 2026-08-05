@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { persistMonitorCheck, runMonitorChecks } from '@/lib/monitor/runChecks'
 
-export async function POST(request: Request) {
+async function handleMonitorRun(request: Request) {
   const cronSecret = process.env.CRON_SECRET
   const authHeader = request.headers.get('authorization')
 
@@ -27,4 +27,12 @@ export async function POST(request: Request) {
       { status: 500 },
     )
   }
+}
+
+export async function GET(request: Request) {
+  return handleMonitorRun(request)
+}
+
+export async function POST(request: Request) {
+  return handleMonitorRun(request)
 }

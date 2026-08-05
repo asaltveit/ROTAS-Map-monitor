@@ -1,5 +1,9 @@
-import { clusterKey } from '@/lib/locations/adjustDisplayCoordinates'
+import {
+  clusterKey,
+  computeDisplayUpdates,
+} from '@/lib/locations/adjustDisplayCoordinates'
 import { createAdminClient } from '@/utils/supabase/admin'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import {
   COUNT_DRIFT_THRESHOLD,
   MAP_RESPONSE_DEGRADED_MS,
@@ -8,6 +12,35 @@ import {
 
 const ROTAS_MAP_URL =
   process.env.ROTAS_MAP_URL ?? 'https://rotas-squares-map.vercel.app'
+
+const COORD_TOLERANCE = 1e-4
+
+const RPC_NAMES = [
+  'get_distinct_type',
+  'get_distinct_script',
+  'get_distinct_location',
+  'get_distinct_text',
+  'get_distinct_place',
+  'get_distinct_first_word',
+] as const
+
+const FILTER_RPC_NAMES = RPC_NAMES.filter((name) => name !== 'get_distinct_type')
+
+type LocationRow = {
+  id: number
+  latitude: number | null
+  longitude: number | null
+  original_latitude: number | null
+  original_longitude: number | null
+  location_type: string | null
+  created_year_start: number | null
+  created_year_end: number | null
+}
+
+type RpcResult = {
+  ok: boolean
+  error: string | null
+}
 
 async function checkMapUptime(): Promise<{
   status: number | null
@@ -31,6 +64,89 @@ async function checkMapUptime(): Promise<{
       responseMs: Date.now() - start,
       error: error instanceof Error ? error.message : 'Map fetch failed',
     }
+  }
+}
+
+export async function runRpcSmokeTests(
+  supabase: SupabaseClient,
+): Promise<{ rpcOk: boolean; rpcResults: Record<string, RpcResult> }> {
+  const results = await Promise.all(
+    RPC_NAMES.map(async (name) => {
+      const { data, error } = await supabase.rpc(name)
+      const ok = !error && Array.isArray(data)
+      return [
+        name,
+        {
+          ok,
+          error: error?.message ?? (ok ? null : `${name} returned no data`),
+        },
+      ] as const
+    }),
+  )
+
+  const rpcResults = Object.fromEntries(results) as Record<string, RpcResult>
+  const rpcOk = results.every(([, result]) => result.ok)
+
+  return { rpcOk, rpcResults }
+}
+
+export function checkOverlapIntegrity(rows: LocationRow[]): {
+  mismatchCount: number
+  sampleIds: number[]
+} {
+  const clusters = new Map<string, LocationRow[]>()
+
+  for (const row of rows) {
+    if (row.original_latitude == null || row.original_longitude == null) {
+      continue
+    }
+    const key = clusterKey(
+      Number(row.original_latitude),
+      Number(row.original_longitude),
+    )
+    const members = clusters.get(key) ?? []
+    members.push(row)
+    clusters.set(key, members)
+  }
+
+  const mismatchedIds: number[] = []
+
+  for (const members of clusters.values()) {
+    if (members.length <= 1) {
+      continue
+    }
+
+    const originalLat = Number(members[0].original_latitude)
+    const originalLng = Number(members[0].original_longitude)
+    const expected = computeDisplayUpdates(
+      members.map((m) => ({
+        id: m.id,
+        original_latitude: originalLat,
+        original_longitude: originalLng,
+      })),
+      originalLat,
+      originalLng,
+    )
+
+    for (const update of expected) {
+      const row = members.find((m) => m.id === update.id)
+      if (!row || row.latitude == null || row.longitude == null) {
+        mismatchedIds.push(update.id)
+        continue
+      }
+
+      const latDiff = Math.abs(Number(row.latitude) - update.latitude)
+      const lngDiff = Math.abs(Number(row.longitude) - update.longitude)
+
+      if (latDiff > COORD_TOLERANCE || lngDiff > COORD_TOLERANCE) {
+        mismatchedIds.push(update.id)
+      }
+    }
+  }
+
+  return {
+    mismatchCount: mismatchedIds.length,
+    sampleIds: mismatchedIds.slice(0, 10),
   }
 }
 
@@ -85,7 +201,7 @@ export async function runMonitorChecks(): Promise<MonitorCheckResult> {
     })
   }
 
-  const rows = locations ?? []
+  const rows = (locations ?? []) as LocationRow[]
   const missingCoords = rows.filter(
     (row) => row.latitude == null || row.longitude == null,
   ).length
@@ -150,16 +266,37 @@ export async function runMonitorChecks(): Promise<MonitorCheckResult> {
     (count) => count > 1,
   ).length
 
-  const { data: rpcData, error: rpcError } = await supabase.rpc(
-    'get_distinct_type',
-  )
-  const rpcOk = !rpcError && Array.isArray(rpcData) && rpcData.length > 0
+  const overlapIntegrity = checkOverlapIntegrity(rows)
+  if (overlapIntegrity.mismatchCount > 0) {
+    alerts.push({
+      severity: 'warning',
+      alert_type: 'overlap_mismatch',
+      message: `${overlapIntegrity.mismatchCount} location(s) have display coords out of sync with overlap layout`,
+    })
+  }
 
-  if (!rpcOk) {
+  const { rpcOk, rpcResults } = await runRpcSmokeTests(supabase)
+  details.rpcs = rpcResults
+  details.overlapIntegrity = overlapIntegrity
+
+  const typeRpc = rpcResults.get_distinct_type
+  if (!typeRpc?.ok) {
     alerts.push({
       severity: 'critical',
       alert_type: 'rpc_failed',
-      message: rpcError?.message ?? 'get_distinct_type RPC returned no data',
+      message:
+        typeRpc?.error ?? 'get_distinct_type RPC returned no data',
+    })
+  }
+
+  const failedFilterRpcs = FILTER_RPC_NAMES.filter(
+    (name) => !rpcResults[name]?.ok,
+  )
+  if (failedFilterRpcs.length > 0) {
+    alerts.push({
+      severity: 'warning',
+      alert_type: 'filter_rpc_failed',
+      message: `${failedFilterRpcs.length} filter RPC(s) failed: ${failedFilterRpcs.join(', ')}`,
     })
   }
 

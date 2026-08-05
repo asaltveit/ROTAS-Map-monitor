@@ -185,6 +185,64 @@ export async function acknowledgeAlert(formData: FormData): Promise<void> {
   redirect('/private/dashboard')
 }
 
+export async function updateUserRole(formData: FormData): Promise<void> {
+  const currentProfile = await requireAdmin()
+
+  const userId = formData.get('userId')
+  const role = formData.get('role')
+
+  if (typeof userId !== 'string' || userId.trim() === '') {
+    redirect('/private/admin/manage-users?error=Invalid+user')
+  }
+
+  if (role !== 'editor' && role !== 'admin') {
+    redirect('/private/admin/manage-users?error=Role+must+be+editor+or+admin')
+  }
+
+  if (userId === currentProfile.user_id) {
+    redirect('/private/admin/manage-users?error=You+cannot+change+your+own+role')
+  }
+
+  const admin = createAdminClient()
+
+  const { data: targetProfile, error: profileError } = await admin
+    .from('user_profiles')
+    .select('user_id, role')
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  if (profileError || !targetProfile) {
+    redirect('/private/admin/manage-users?error=User+not+found')
+  }
+
+  if (targetProfile.role === 'admin' && role === 'editor') {
+    const { count, error: countError } = await admin
+      .from('user_profiles')
+      .select('*', { count: 'exact', head: true })
+      .eq('role', 'admin')
+
+    if (countError) {
+      redirect('/private/admin/manage-users?error=Failed+to+verify+admin+count')
+    }
+
+    if (count != null && count <= 1) {
+      redirect('/private/admin/manage-users?error=Cannot+demote+the+last+admin')
+    }
+  }
+
+  const { error: updateError } = await admin
+    .from('user_profiles')
+    .update({ role })
+    .eq('user_id', userId)
+
+  if (updateError) {
+    redirect('/private/admin/manage-users?error=Failed+to+update+role')
+  }
+
+  revalidatePath('/private/admin/manage-users')
+  redirect('/private/admin/manage-users?success=Role+updated')
+}
+
 export async function runCheckNow(): Promise<void> {
   await requireAdmin()
 

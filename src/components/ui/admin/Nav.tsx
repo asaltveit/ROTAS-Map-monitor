@@ -11,6 +11,12 @@ export default function Nav() {
       </Link>
       <Link
         className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
+        href="/private/admin/manage-users"
+      >
+        Manage users
+      </Link>
+      <Link
+        className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
         href="/private/admin/remove-user"
       >
         Remove user
