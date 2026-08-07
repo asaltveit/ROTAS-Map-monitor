@@ -106,3 +106,53 @@ The locations table includes links to the public ROTAS Map and OpenStreetMap coo
 ## Related project
 
 - [ROTAS-squares-map](https://github.com/asaltveit/ROTAS-squares-map) — the public map application
+
+## Testing
+
+### Prerequisites
+
+1. Install [Supabase CLI](https://supabase.com/docs/guides/cli)
+2. Start local Supabase (applies migrations + seed):
+
+```bash
+supabase start
+```
+
+3. Copy test env and fill keys from `supabase status`:
+
+```bash
+cp .env.test.example .env.test
+supabase status -o env >> .env.test
+```
+
+### Commands
+
+| Command | Description |
+|---|---|
+| `npm run lint` | ESLint (Next.js + TypeScript rules) |
+| `npm run typecheck` | TypeScript 7 typecheck (`tsc --noEmit`) |
+| `npm run check` | Lint + typecheck |
+| `npm run test` | Unit tests (Vitest) |
+| `npm run test:integration` | Integration tests (requires local Supabase) |
+| `npm run test:e2e` | End-to-end tests (Playwright; builds app first) |
+| `npm run test:a11y` | Accessibility scans only |
+| `npm run test:all` | Unit + integration + e2e |
+| `npm run lighthouse` | Lighthouse CI against public pages |
+
+### CI/CD
+
+GitHub Actions runs on every PR:
+
+- **quality** — ESLint, typecheck, unit tests
+- **integration** — local Supabase + integration tests
+- **build** — `next build`
+- **e2e** — Playwright with local Supabase
+
+On push to `main`, **Lighthouse** runs against the production URL (`LIGHTHOUSE_BASE_URL` repo variable).
+
+Set branch protection to require the CI jobs before merge.
+
+### TypeScript side-by-side setup
+
+ESLint tooling requires TypeScript 6 (via the `typescript` npm alias to `@typescript/typescript6`). TypeScript 7 is installed separately as `@typescript/native` for `npm run typecheck`. This follows [Microsoft’s TS 7 side-by-side guidance](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/#running-side-by-side-with-typescript-60).
+

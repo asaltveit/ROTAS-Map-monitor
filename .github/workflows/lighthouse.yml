@@ -1,0 +1,24 @@
+name: Lighthouse
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Run Lighthouse CI
+        env:
+          LIGHTHOUSE_BASE_URL: ${{ vars.LIGHTHOUSE_BASE_URL }}
+        run: npm run lighthouse
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: lighthouse-reports/
