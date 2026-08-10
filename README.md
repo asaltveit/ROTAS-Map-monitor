@@ -1,36 +1,160 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ROTAS Map Monitor
 
-## Getting Started
+A secured Next.js dashboard for managing and monitoring the [ROTAS Map](https://rotas-squares-map.vercel.app/) — an interactive map of ancient palindromic inscription locations.
 
-First, run the development server:
+## Features
+
+- **Authentication** — Supabase Auth for editor/admin users only
+- **Location management** — Add and delete locations on the shared ROTAS Map database
+- **Overlap handling** — Original coordinates are preserved; display coordinates are offset when multiple inscriptions share a site
+- **Monitoring** — Scheduled health checks for map uptime, Supabase connectivity, RPC smoke tests, and data quality
+- **Alerts** — Dashboard alerts with acknowledge flow
+
+## Setup
+
+1. Copy environment variables:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Fill in Supabase credentials (same project as ROTAS Map):
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Run SQL migrations in the Supabase SQL editor:
 
-## Learn More
+- [`supabase/migrations/001_locations_original_coords.sql`](supabase/migrations/001_locations_original_coords.sql)
+- [`supabase/migrations/002_monitor_tables.sql`](supabase/migrations/002_monitor_tables.sql)
 
-To learn more about Next.js, take a look at the following resources:
+4. Create the first admin user in Supabase Auth, then insert a profile row:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```sql
+INSERT INTO user_profiles (user_id, role)
+VALUES ('<auth-user-uuid>', 'admin');
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+5. Install and run:
 
-## Deploy on Vercel
+```bash
+npm install
+npm run dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Open [http://localhost:3000](http://localhost:3000).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Environment variables
+
+| Variable | Description |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service role key (server only) |
+| `NEXT_PUBLIC_APP_URL` | This app's public URL |
+| `ROTAS_MAP_URL` | ROTAS Map URL for server-side uptime checks |
+| `NEXT_PUBLIC_ROTAS_MAP_URL` | ROTAS Map URL for client-side location links |
+| `CRON_SECRET` | Bearer token for `/api/monitor/run` (16+ random characters) |
+
+## Scheduled monitoring
+
+Vercel Cron calls `GET /api/monitor/run` once daily (12:00 UTC) with:
+
+```
+Authorization: Bearer <CRON_SECRET>
+```
+
+The same endpoint also accepts `POST` for manual testing (for example with curl).
+
+On the Vercel Hobby plan, cron jobs are limited to once per day — the schedule above matches that. Admins can also run an immediate check from the dashboard (“Run check now”) between scheduled runs.
+
+### Local cron test
+
+```bash
+curl -s -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/monitor/run
+```
+
+## Map links from the locations table
+
+The locations table includes links to the public ROTAS Map and OpenStreetMap coordinates. The ROTAS Map does not yet support deep links to individual markers; per-location highlighting is planned as a follow-up in the [ROTAS-squares-map](https://github.com/asaltveit/ROTAS-squares-map) repo.
+
+## Production checklist
+
+### Supabase (one-time)
+
+- [ ] Run [`001_locations_original_coords.sql`](supabase/migrations/001_locations_original_coords.sql) and [`002_monitor_tables.sql`](supabase/migrations/002_monitor_tables.sql) in the SQL editor
+- [ ] Confirm `locations` has `original_latitude` / `original_longitude` backfilled
+- [ ] Create the first Auth user and insert an admin row in `user_profiles`
+
+### Vercel
+
+- [ ] Set all environment variables listed above
+- [ ] Deploy and confirm the cron job appears under Project → Cron Jobs
+- [ ] After the first cron run, verify a row appears in `monitor_checks` and the dashboard shows the latest check
+
+### Smoke tests (manual)
+
+| Flow | Expected |
+|------|----------|
+| Login as editor | Dashboard + Locations; no Admin |
+| Login as admin | Admin invite, manage users, remove user |
+| Add overlapping location | Display coords offset; originals preserved |
+| Delete location | Cluster recomputes; audit log row |
+| Dashboard “Run check now” | New check + alerts if unhealthy |
+| Cron GET with Bearer | 200 + persisted check |
+| Unauthorized role / no profile | `/unauthorized` |
+
+## Related project
+
+- [ROTAS-squares-map](https://github.com/asaltveit/ROTAS-squares-map) — the public map application
+
+## Testing
+
+### Prerequisites
+
+1. Install [Supabase CLI](https://supabase.com/docs/guides/cli)
+2. Start local Supabase (applies migrations + seed):
+
+```bash
+supabase start
+```
+
+3. Copy test env and fill keys from `supabase status`:
+
+```bash
+cp .env.test.example .env.test
+supabase status -o env >> .env.test
+```
+
+### Commands
+
+| Command | Description |
+|---|---|
+| `npm run lint` | ESLint (Next.js + TypeScript rules) |
+| `npm run typecheck` | TypeScript 7 typecheck (`tsc --noEmit`) |
+| `npm run check` | Lint + typecheck |
+| `npm run test` | Unit tests (Vitest) |
+| `npm run test:integration` | Integration tests (requires local Supabase) |
+| `npm run test:e2e` | End-to-end tests (Playwright; builds app first) |
+| `npm run test:a11y` | Accessibility scans only |
+| `npm run test:all` | Unit + integration + e2e |
+| `npm run lighthouse` | Lighthouse CI against public pages |
+
+### CI/CD
+
+GitHub Actions runs on every PR:
+
+- **quality** — ESLint, typecheck, unit tests
+- **integration** — local Supabase + integration tests
+- **build** — `next build`
+- **e2e** — Playwright with local Supabase
+
+On push to `main`, **Lighthouse** runs against the production URL (`LIGHTHOUSE_BASE_URL` repo variable).
+
+Set branch protection to require the CI jobs before merge.
+
+### TypeScript side-by-side setup
+
+ESLint tooling requires TypeScript 6 (via the `typescript` npm alias to `@typescript/typescript6`). TypeScript 7 is installed separately as `@typescript/native` for `npm run typecheck`. This follows [Microsoft’s TS 7 side-by-side guidance](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/#running-side-by-side-with-typescript-60).
+
