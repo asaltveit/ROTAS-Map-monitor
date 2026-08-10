@@ -59,13 +59,15 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Scheduled monitoring
 
-Vercel Cron calls `GET /api/monitor/run` every 15 minutes with:
+Vercel Cron calls `GET /api/monitor/run` once daily (12:00 UTC) with:
 
 ```
 Authorization: Bearer <CRON_SECRET>
 ```
 
 The same endpoint also accepts `POST` for manual testing (for example with curl).
+
+On the Vercel Hobby plan, cron jobs are limited to once per day — the schedule above matches that. Admins can also run an immediate check from the dashboard (“Run check now”) between scheduled runs.
 
 ### Local cron test
 
