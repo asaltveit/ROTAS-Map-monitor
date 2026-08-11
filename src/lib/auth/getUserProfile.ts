@@ -4,11 +4,15 @@ import type { UserProfile, UserRole } from './types'
 
 export async function getUserProfile(): Promise<UserProfile | null> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
 
-  if (!user) {
+  let user
+  try {
+    const result = await supabase.auth.getUser()
+    if (result.error || !result.data.user) {
+      return null
+    }
+    user = result.data.user
+  } catch {
     return null
   }
 

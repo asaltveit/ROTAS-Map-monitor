@@ -3,7 +3,7 @@ import AlertsTable from '@/components/monitor/AlertsTable'
 import ChecksTable from '@/components/monitor/ChecksTable'
 import RunCheckButton from '@/components/monitor/RunCheckButton'
 import StatusCards from '@/components/monitor/StatusCards'
-import { getUserProfile, requireAuth } from '@/lib/auth/getUserProfile'
+import { requireAuth } from '@/lib/auth/getUserProfile'
 import { createClient } from '@/utils/supabase/server'
 
 export const metadata: Metadata = {
@@ -16,8 +16,7 @@ export default async function DashboardPage({
 }: {
   searchParams: Promise<{ error?: string }>
 }) {
-  await requireAuth()
-  const profile = await getUserProfile()
+  const profile = await requireAuth()
   const params = await searchParams
   const supabase = await createClient()
 

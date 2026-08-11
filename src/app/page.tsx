@@ -3,12 +3,18 @@ import { createClient } from '@/utils/supabase/server'
 
 export default async function Home() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
 
-  if (user) {
-    redirect('/private/dashboard')
+  try {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser()
+
+    if (!error && user) {
+      redirect('/private/dashboard')
+    }
+  } catch {
+    // Ignore broken auth cookies and send the user to login.
   }
 
   redirect('/login')
