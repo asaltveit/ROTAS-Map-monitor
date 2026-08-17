@@ -18,7 +18,7 @@ jobs:
         env:
           LIGHTHOUSE_BASE_URL: ${{ vars.LIGHTHOUSE_BASE_URL }}
         run: npm run lighthouse
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: lighthouse-reports
           path: lighthouse-reports/
